@@ -1,0 +1,35 @@
+# kubernetes-intro/pod.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: homework-pod
+  namespace: homework
+  labels:
+    app: homework-app
+spec:
+  volumes:
+    - name: shared-volume
+      emptyDir: {}
+  
+  initContainers:
+    - name: init-container
+      image: busybox
+      command: ['sh', '-c', 'wget -O /init/index.html https://raw.githubusercontent.com/kubernetes/website/main/content/en/index.html || echo "Hello from Homework!" > /init/index.html']
+      volumeMounts:
+        - name: shared-volume
+          mountPath: /init
+  
+  containers:
+    - name: web-server
+      image: nginx:alpine
+      ports:
+        - containerPort: 8000
+      volumeMounts:
+        - name: shared-volume
+          mountPath: /homework
+      lifecycle:
+        preStop:
+          exec:
+            command: ['sh', '-c', 'rm -f /homework/index.html']
+  
+  restartPolicy: Always
