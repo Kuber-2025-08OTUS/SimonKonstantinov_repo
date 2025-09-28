@@ -17,6 +17,8 @@ spec:
       labels:
         app: homework-app
     spec:
+      nodeSelector:
+        homework: "true"
       volumes:
         - name: shared-volume
           emptyDir: {}
