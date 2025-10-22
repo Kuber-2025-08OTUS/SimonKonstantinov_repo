@@ -1,0 +1,25 @@
+{{- if .Values.rbac.create }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "homework-app.fullname" . }}-{{ .Values.rbac.clusterRole.name }}
+  labels:
+    {{- include "homework-app.labels" . | nindent 4 }}
+rules:
+{{- toYaml .Values.rbac.clusterRole.rules | nindent 2 }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "homework-app.fullname" . }}-metrics-binding
+  labels:
+    {{- include "homework-app.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ include "homework-app.fullname" . }}-{{ .Values.rbac.clusterRole.name }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "homework-app.serviceAccountName" . }}
+    namespace: {{ .Values.namespace }}
+{{- end }}

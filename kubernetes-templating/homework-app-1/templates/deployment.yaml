@@ -1,0 +1,89 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "homework-app.fullname" . }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "homework-app.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  strategy:
+    type: {{ .Values.strategy.type }}
+    {{- if eq .Values.strategy.type "RollingUpdate" }}
+    rollingUpdate:
+      maxUnavailable: {{ .Values.strategy.maxUnavailable }}
+    {{- end }}
+  selector:
+    matchLabels:
+      {{- include "homework-app.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "homework-app.selectorLabels" . | nindent 8 }}
+    spec:
+      serviceAccountName: {{ include "homework-app.serviceAccountName" . }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+        - name: shared-volume
+          persistentVolumeClaim:
+            claimName: {{ include "homework-app.fullname" . }}-pvc
+        {{- if .Values.configMap.enabled }}
+        - name: config-volume
+          configMap:
+            name: {{ include "homework-app.fullname" . }}-config
+        {{- end }}
+      initContainers:
+        {{- if .Values.initContainers.downloadIndex.enabled }}
+        - name: init-download-index
+          image: "{{ .Values.initContainers.downloadIndex.image.repository }}:{{ .Values.initContainers.downloadIndex.image.tag }}"
+          command: {{- toYaml .Values.initContainers.downloadIndex.command | nindent 12 }}
+          volumeMounts:
+            - name: shared-volume
+              mountPath: /init
+        {{- end }}
+        {{- if .Values.initContainers.fetchMetrics.enabled }}
+        - name: fetch-metrics
+          image: "{{ .Values.initContainers.fetchMetrics.image.repository }}:{{ .Values.initContainers.fetchMetrics.image.tag }}"
+          command: {{- toYaml .Values.initContainers.fetchMetrics.command | nindent 12 }}
+          volumeMounts:
+            - name: shared-volume
+              mountPath: /init
+        {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.targetPort }}
+              protocol: TCP
+          volumeMounts:
+            - name: shared-volume
+              mountPath: /usr/share/nginx/html
+            {{- if .Values.configMap.enabled }}
+            - name: config-volume
+              mountPath: /usr/share/nginx/html/conf
+            {{- end }}
+          {{- if .Values.probes.readiness.enabled }}
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.probes.readiness.path }}
+              port: {{ .Values.probes.readiness.port }}
+            initialDelaySeconds: {{ .Values.probes.readiness.initialDelaySeconds }}
+            periodSeconds: {{ .Values.probes.readiness.periodSeconds }}
+          {{- end }}
+          {{- if .Values.probes.liveness.enabled }}
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.probes.liveness.path }}
+              port: {{ .Values.probes.liveness.port }}
+          {{- end }}
+          {{- if .Values.lifecycle.preStop.enabled }}
+          lifecycle:
+            preStop:
+              exec:
+                command: {{- toYaml .Values.lifecycle.preStop.command | nindent 18 }}
+          {{- end }}
