@@ -1,0 +1,26 @@
+# Development: 1 broker, latest, PLAINTEXT, no auth
+
+broker:
+  replicaCount: 1
+
+kraft:
+  clusterId: "YWJjZGVmZ2hpamtsbW"
+
+listeners:
+  client:
+    protocol: PLAINTEXT
+  interbroker:
+    protocol: PLAINTEXT
+
+sasl:
+  client:
+    users: []
+
+persistence:
+  enabled: false
+
+resources:
+  limits:
+    memory: 512Mi
+  requests:
+    memory: 256Mi
