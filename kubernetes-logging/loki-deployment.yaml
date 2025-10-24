@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: loki
+  namespace: logging
+  labels:
+    app: loki
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: loki
+  template:
+    metadata:
+      labels:
+        app: loki
+    spec:
+      nodeSelector:
+        node-role: infra
+      tolerations:
+      - key: node-role
+        operator: Equal
+        value: infra
+        effect: NoSchedule
+      containers:
+      - name: loki
+        image: grafana/loki:2.9.0
+        args:
+        - -config.file=/etc/loki/loki.yaml
+        - -config.expand-env=true
+        ports:
+        - containerPort: 3100
+          name: http
+        - containerPort: 9096
+          name: grpc
+        env:
+        - name: ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: loki-s3-credentials
+              key: access_key_id
+        - name: ACCESS_KEY_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: loki-s3-credentials
+              key: access_key_secret
+        volumeMounts:
+        - name: config
+          mountPath: /etc/loki
+          readOnly: true
+      volumes:
+      - name: config
+        configMap:
+          name: loki-config

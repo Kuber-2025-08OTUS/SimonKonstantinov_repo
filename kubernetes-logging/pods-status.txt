@@ -1,0 +1,6 @@
+NAME                     READY   STATUS    RESTARTS   AGE   IP             NODE                        NOMINATED NODE   READINESS GATES
+grafana-6584467c-vrbsg   1/1     Running   0          54m   10.112.130.6   cl1gbju3o1aub31i6ngt-etok   <none>           <none>
+loki-947b6fdff-4v2g4     1/1     Running   0          66m   10.112.130.4   cl1gbju3o1aub31i6ngt-etok   <none>           <none>
+promtail-9hwxg           1/1     Running   0          26m   10.10.0.22     cl1gbju3o1aub31i6ngt-etok   <none>           <none>
+promtail-dcl99           1/1     Running   0          27m   10.10.0.32     cl1ao6ci65vlp97t011l-ulyk   <none>           <none>
+promtail-v74tr           1/1     Running   0          27m   10.10.0.11     cl1ao6ci65vlp97t011l-uzaj   <none>           <none>

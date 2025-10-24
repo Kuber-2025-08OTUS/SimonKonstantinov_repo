@@ -1,0 +1,4 @@
+NAME         TYPE           CLUSTER-IP      EXTERNAL-IP      PORT(S)        AGE
+grafana      ClusterIP      10.96.254.121   <none>           3000/TCP       58m
+grafana-lb   LoadBalancer   10.96.143.122   84.201.147.193   80:31137/TCP   46m
+loki         ClusterIP      10.96.213.240   <none>           3100/TCP       68m
