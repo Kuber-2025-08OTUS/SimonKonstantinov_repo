@@ -1,0 +1,20 @@
+releases:
+  - name: kafka-prod
+    namespace: prod
+    createNamespace: true
+    chart: oci://registry-1.docker.io/bitnamicharts/kafka
+    version: 30.1.6
+    values:
+      - kafka-prod-values.yaml
+
+  - name: kafka-dev
+    namespace: dev
+    createNamespace: true
+    chart: oci://registry-1.docker.io/bitnamicharts/kafka
+    version: 30.1.6
+    values:
+      - kafka-dev-values.yaml
+
+helmDefaults:
+  wait: false
+  timeout: 600

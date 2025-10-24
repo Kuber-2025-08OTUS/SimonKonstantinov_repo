@@ -1,0 +1,35 @@
+# Production: 5 brokers, Kafka 3.5.x, SASL_PLAINTEXT
+
+# Используем доступный образ Kafka 3.5
+image:
+  tag: "3.5.1-debian-12-r0"
+
+broker:
+  replicaCount: 5
+
+kraft:
+  clusterId: "ZGNhZjEyYzUtNjBiMi00"
+
+listeners:
+  client:
+    protocol: SASL_PLAINTEXT
+  interbroker:
+    protocol: SASL_PLAINTEXT
+
+sasl:
+  client:
+    users:
+      - admin
+    passwords: "admin-password"
+  interbroker:
+    user: admin
+    password: "interbroker-password"
+
+persistence:
+  enabled: false
+
+resources:
+  limits:
+    memory: 512Mi
+  requests:
+    memory: 256Mi

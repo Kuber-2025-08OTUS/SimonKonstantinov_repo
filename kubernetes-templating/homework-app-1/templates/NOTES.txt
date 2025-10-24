@@ -1,0 +1,31 @@
+Спасибо за установку {{ .Chart.Name }}!
+
+Ваше приложение развёрнуто в namespace: {{ .Values.namespace }}
+
+Для доступа к приложению выполните:
+
+  kubectl port-forward --namespace {{ .Values.namespace }} svc/{{ include "homework-app.fullname" . }} 8080:{{ .Values.service.port }}
+  
+  После запуска port-forward откройте в браузере:
+  - http://localhost:8080/index.html - главная страница
+  - http://localhost:8080/metrics.html - метрики Kubernetes
+
+{{- if .Values.redis.enabled }}
+
+Redis развёрнут как зависимость:
+  Сервис: {{ .Release.Name }}-redis-master
+  Порт: 6379
+  
+  Подключение к Redis:
+    kubectl run --namespace {{ .Values.namespace }} redis-client --rm --tty -i --restart='Never' --image redis:latest -- bash
+    redis-cli -h {{ .Release.Name }}-redis-master
+{{- end }}
+
+Проверить статус deployment:
+  kubectl --namespace {{ .Values.namespace }} get deployments {{ include "homework-app.fullname" . }}
+
+Посмотреть поды:
+  kubectl --namespace {{ .Values.namespace }} get pods -l "app.kubernetes.io/name={{ include "homework-app.name" . }},app.kubernetes.io/instance={{ .Release.Name }}"
+
+Посмотреть логи:
+  kubectl --namespace {{ .Values.namespace }} logs -l "app.kubernetes.io/name={{ include "homework-app.name" . }}" -f

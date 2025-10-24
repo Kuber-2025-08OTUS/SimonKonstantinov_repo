@@ -1,0 +1,11 @@
+{{- if .Values.configMap.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "homework-app.fullname" . }}-config
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "homework-app.labels" . | nindent 4 }}
+data:
+{{- toYaml .Values.configMap.data | nindent 2 }}
+{{- end }}

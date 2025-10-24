@@ -1,0 +1,108 @@
+# Копия values.yaml но с выключенным Redis
+nameOverride: ""
+fullnameOverride: ""
+namespace: homework
+replicaCount: 3
+
+image:
+  repository: nginx
+  tag: alpine
+  pullPolicy: IfNotPresent
+
+serviceAccount:
+  create: true
+  name: monitoring
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 80
+
+nodeSelector:
+  homework: "true"
+
+probes:
+  readiness:
+    enabled: true
+    path: /index.html
+    port: 80
+    initialDelaySeconds: 5
+    periodSeconds: 10
+  liveness:
+    enabled: false
+
+lifecycle:
+  preStop:
+    enabled: true
+    command: ['sh', '-c', 'rm -f /usr/share/nginx/html/index.html']
+
+configMap:
+  enabled: true
+  data:
+    app.conf: |
+      app.name=Homework App
+      app.version=1.0.0
+      environment=production
+    database.conf: |
+      db.host=localhost
+      db.port=5432
+      db.name=homework
+
+persistence:
+  enabled: true
+  storageClassName: homework-storage
+  accessMode: ReadWriteOnce
+  size: 1Gi
+
+storageClass:
+  enabled: true
+  name: homework-storage
+  provisioner: k8s.io/minikube-hostpath
+  reclaimPolicy: Retain
+  volumeBindingMode: Immediate
+
+initContainers:
+  downloadIndex:
+    enabled: true
+    image:
+      repository: busybox
+      tag: latest
+    command: ['sh', '-c', 'wget -O /init/index.html https://raw.githubusercontent.com/kubernetes/website/main/content/en/index.html || echo "Hello from Homework!" > /init/index.html']
+  
+  fetchMetrics:
+    enabled: true
+    image:
+      repository: curlimages/curl
+      tag: "8.8.0"
+    command:
+      - sh
+      - -c
+      - |
+        set -e
+        CA=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
+        curl --fail --retry 5 --retry-delay 2 \
+             --cacert $CA \
+             -H "Authorization: Bearer $TOKEN" \
+             https://kubernetes.default.svc/metrics \
+             | sed '1i <pre>' \
+             | sed '$a </pre>' > /init/metrics.html
+
+strategy:
+  type: RollingUpdate
+  maxUnavailable: 1
+
+rbac:
+  create: true
+  clusterRole:
+    name: monitoring-metrics-read
+    rules:
+      - apiGroups: [""]
+        resources: ["nodes", "nodes/proxy", "services", "endpoints", "pods"]
+        verbs: ["get", "list", "watch"]
+      - nonResourceURLs: ["/metrics", "/metrics/*"]
+        verbs: ["get"]
+
+# Redis ВЫКЛЮЧЕН
+redis:
+  enabled: false
