@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql-operator-custom
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql-operator-custom
+  template:
+    metadata:
+      labels:
+        app: mysql-operator-custom
+    spec:
+      serviceAccountName: mysql-operator
+      containers:
+      - name: operator
+        image: mysql-operator-custom:latest
+        imagePullPolicy: Never  # For local testing
+        env:
+        - name: PYTHONUNBUFFERED
+          value: "1"
