@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: homework-deployment
+  namespace: homework
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+  selector:
+    matchLabels:
+      app: homework-app
+  template:
+    metadata:
+      labels:
+        app: homework-app
+    spec:
+      serviceAccountName: monitoring
+      nodeSelector:
+        homework: "true"
+      volumes:
+        - name: shared-volume
+          persistentVolumeClaim:
+            claimName: homework-pvc
+        - name: config-volume
+          configMap:
+            name: homework-config
+      initContainers:
+        - name: init-container
+          image: busybox
+          command: ['sh', '-c', 'wget -O /init/index.html https://raw.githubusercontent.com/kubernetes/website/main/content/en/index.html || echo "Hello from Homework!" > /init/index.html']
+          volumeMounts:
+            - name: shared-volume
+              mountPath: /init
+        - name: fetch-metrics
+          image: curlimages/curl:8.8.0
+          command:
+            - sh
+            - -c
+            - |
+              set -e
+              CA=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+              TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
+              curl --fail --retry 5 --retry-delay 2 \
+                   --cacert $CA \
+                   -H "Authorization: Bearer $TOKEN" \
+                   https://kubernetes.default.svc/metrics \
+                   | sed '1i <pre>' \
+                   | sed '$a </pre>' > /init/metrics.html
+          volumeMounts:
+            - name: shared-volume
+              mountPath: /init
+      containers:
+        - name: web-server
+          image: nginx:alpine
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: shared-volume
+              mountPath: /usr/share/nginx/html
+            - name: config-volume
+              mountPath: /usr/share/nginx/html/conf
+          readinessProbe:
+            httpGet:
+              path: /index.html
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          lifecycle:
+            preStop:
+              exec:
+                command: ['sh', '-c', 'rm -f /usr/share/nginx/html/index.html']
