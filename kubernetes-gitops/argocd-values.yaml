@@ -1,0 +1,66 @@
+# Values file for ArgoCD installation
+# Настройки для установки ArgoCD на infra-ноды
+
+global:
+  # Настройка для всех компонентов ArgoCD
+  nodeSelector:
+    node-role: infra
+  
+  # Toleration для обхода taint на infra-нодах
+  tolerations:
+    - key: node-role
+      operator: Equal
+      value: infra
+      effect: NoSchedule
+
+# Настройки для ArgoCD Application Controller
+controller:
+  nodeSelector:
+    node-role: infra
+  tolerations:
+    - key: node-role
+      operator: Equal
+      value: infra
+      effect: NoSchedule
+
+# Настройки для ArgoCD Server
+server:
+  nodeSelector:
+    node-role: infra
+  tolerations:
+    - key: node-role
+      operator: Equal
+      value: infra
+      effect: NoSchedule
+
+# Настройки для ArgoCD Repo Server
+repoServer:
+  nodeSelector:
+    node-role: infra
+  tolerations:
+    - key: node-role
+      operator: Equal
+      value: infra
+      effect: NoSchedule
+
+# Настройки для ArgoCD ApplicationSet Controller
+applicationSet:
+  nodeSelector:
+    node-role: infra
+  tolerations:
+    - key: node-role
+      operator: Equal
+      value: infra
+      effect: NoSchedule
+
+# Настройки для ArgoCD Redis
+redis:
+  nodeSelector:
+    node-role: infra
+  tolerations:
+    - key: node-role
+      operator: Equal
+      value: infra
+      effect: NoSchedule
+
+

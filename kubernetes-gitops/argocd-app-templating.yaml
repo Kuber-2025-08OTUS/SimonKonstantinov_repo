@@ -1,0 +1,36 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: homework-templating
+  namespace: argocd
+spec:
+  project: otus
+  source:
+    repoURL: https://github.com/Kuber-2025-08OTUS/SimonKonstantinov_repo.git
+    targetRevision: kubernetes-templating
+    path: kubernetes-templating/homework-app-1
+    helm:
+      valueFiles:
+        - values.yaml
+      values: |
+        replicaCount: 5
+        namespace: homework-helm
+        persistence:
+          enabled: false
+        redis:
+          enabled: false
+        initContainers:
+          downloadIndex:
+            enabled: false
+          fetchMetrics:
+            enabled: false
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: homework-helm
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+
