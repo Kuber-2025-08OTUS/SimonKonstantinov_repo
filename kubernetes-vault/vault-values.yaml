@@ -1,0 +1,56 @@
+# Vault Helm Chart Values
+# Установка Vault в HA режиме с Consul бэкендом
+
+global:
+  enabled: true
+  tlsDisable: true
+
+server:
+  image:
+    repository: hashicorp/vault
+    tag: "1.18.0"
+  
+  # HA режим
+  ha:
+    enabled: true
+    replicas: 3
+    
+  # Конфигурация Consul бэкенда
+  extraEnvironmentVars:
+    VAULT_ADDR: "http://127.0.0.1:8200"
+  
+  # Конфигурация для Consul
+  extraArgs: |
+    - -config=/vault/config/extraconfig-from-values.hcl
+  
+  extraVolumes:
+    - type: secret
+      name: consul-tls
+  
+  # Конфигурация Consul storage
+  dataStorage:
+    enabled: true
+    size: 10Gi
+    storageClass: ""
+  
+  # Конфигурация Consul
+  config: |
+    ui = true
+    
+    listener "tcp" {
+      address = "[::]:8200"
+      cluster_address = "[::]:8201"
+      tls_disable = 1
+    }
+    
+    storage "consul" {
+      path = "vault/"
+      address = "consul-server.consul.svc.cluster.local:8500"
+      scheme = "http"
+    }
+    
+    cluster_addr = "https://[::]:8201"
+    api_addr = "http://[::]:8200"
+    
+    seal "shamir" {
+    }

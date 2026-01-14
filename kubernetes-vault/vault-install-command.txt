@@ -1,0 +1,14 @@
+# Команда установки Vault
+
+cd /tmp && git clone https://github.com/hashicorp/vault-helm.git --depth 1
+
+cd /tmp/vault-helm && helm template vault . \
+  --namespace vault \
+  -f vault-values-ha.yaml \
+  | sed 's/policy\/v1beta1/policy\/v1/g' | kubectl apply -f -
+
+# Или используя файл values из репозитория:
+# cd /tmp/vault-helm && helm template vault . \
+#   --namespace vault \
+#   -f /path/to/kubernetes-vault/vault-values-ha.yaml \
+#   | sed 's/policy\/v1beta1/policy\/v1/g' | kubectl apply -f -

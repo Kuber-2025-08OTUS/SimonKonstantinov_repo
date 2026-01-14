@@ -1,0 +1,17 @@
+# Команда установки Consul
+
+cd /tmp && git clone https://github.com/hashicorp/consul-helm.git --depth 1
+
+cd /tmp/consul-helm && helm template consul . \
+  --namespace consul \
+  --set global.name=consul \
+  --set global.datacenter=dc1 \
+  --set server.replicas=3 \
+  --set server.bootstrapExpect=3 \
+  --set server.storage=10Gi \
+  --set connectInject.enabled=false \
+  --set controller.enabled=false \
+  --set meshGateway.enabled=false \
+  --set ingressGateways.enabled=false \
+  --set terminatingGateways.enabled=false \
+  | sed 's/policy\/v1beta1/policy\/v1/g' | kubectl apply -f -
