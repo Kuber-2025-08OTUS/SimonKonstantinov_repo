@@ -1,0 +1,8 @@
+Command used to get logs:
+kubectl exec node-debugger-cl1ao6ci65vlp97t011l-imyq-n9tfd -c debugger -- cat /host/var/log/pods/default_nginx-distroless_724ac098-9bbe-4728-8cda-c5955b61a1f6/nginx/0.log
+
+Logs from nginx-distroless pod:
+
+2026-01-15T14:09:46.295685915Z stdout F 10.112.131.19 - - [15/Jan/2026:22:09:46 +0800] "GET / HTTP/1.1" 200 612 "-" "Wget" "-"
+2026-01-15T14:11:23.136990158Z stdout F 10.112.131.19 - - [15/Jan/2026:22:11:23 +0800] "GET / HTTP/1.1" 200 612 "-" "Wget" "-"
+2026-01-15T14:11:40.025595741Z stdout F 10.112.131.19 - - [15/Jan/2026:22:11:40 +0800] "GET / HTTP/1.1" 200 612 "-" "Wget" "-"
