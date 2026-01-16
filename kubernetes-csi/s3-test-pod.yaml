@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: s3-test-pod
+  namespace: default
+spec:
+  containers:
+  - name: app
+    image: busybox:latest
+    command: 
+      - /bin/sh
+      - -c
+      - |
+        echo "Testing S3 volume mount"
+        echo "Current time: $(date)" > /mnt/s3/test-file.txt
+        echo "Pod name: s3-test-pod" >> /mnt/s3/test-file.txt
+        echo "File created successfully!" >> /mnt/s3/test-file.txt
+        cat /mnt/s3/test-file.txt
+        echo "Waiting to keep pod running..."
+        sleep 3600
+    volumeMounts:
+    - name: s3-volume
+      mountPath: /mnt/s3
+  volumes:
+  - name: s3-volume
+    persistentVolumeClaim:
+      claimName: s3-pvc
+  restartPolicy: Never
