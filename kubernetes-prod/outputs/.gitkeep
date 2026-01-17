@@ -1,0 +1,3 @@
+# Эта папка содержит результаты выполнения задания
+# - nodes-before-upgrade.txt - вывод kubectl get nodes -o wide до обновления
+# - nodes-after-upgrade.txt - вывод kubectl get nodes -o wide после обновления
