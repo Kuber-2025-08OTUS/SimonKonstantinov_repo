@@ -1,0 +1,6 @@
+VM_NAME,EXTERNAL_IP,INTERNAL_IP,USERNAME,PASSWORD
+k8s-ha-master-1,158.160.81.42,10.129.0.11,master1,master1
+k8s-ha-master-2,158.160.90.191,10.129.0.30,master2,master2
+k8s-ha-master-3,158.160.93.140,10.129.0.31,master3,master3
+k8s-ha-worker-1,158.160.79.222,10.129.0.21,worker1,worker1
+k8s-ha-worker-2,158.160.66.153,10.129.0.5,worker2,worker2

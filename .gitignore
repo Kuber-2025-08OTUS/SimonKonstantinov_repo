@@ -1,0 +1,20 @@
+# Приватные SSH ключи
+kubernetes-prod/k8s-key
+kubernetes-prod/*.key
+!kubernetes-prod/*.pub
+
+# Временные файлы
+*.tmp
+*.log
+/tmp/
+
+# Локальные конфигурации
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Файлы с паролями (если есть)
+*vms-info.txt
+*credentials.txt
